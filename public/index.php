@@ -1,7 +1,6 @@
 <?php
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
+use App\Controllers\UserController;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -10,18 +9,7 @@ $app->setBasePath("");
 $app->addRoutingMiddleware();
 $app->addBodyParsingMiddleware();
 
-$app->get('/test-db', function (Request $request, Response $response) {
-    $host = getenv('DB_HOST');
-    $db   = getenv('DB_NAME');
-    
-    try {
-        $pdo = new PDO("mysql:host=$host;dbname=$db", getenv('DB_USER'), getenv('DB_PASS'));
-        $response->getBody()->write(json_encode(["status" => "Conectado a MySQL"]));
-    } catch (PDOException $e) {
-        $response->getBody()->write(json_encode(["error" => $e->getMessage()]));
-    }
-    
-    return $response->withHeader('Content-Type', 'application/json');
-});
+$app->get('/api/v1/users/legacy', [UserController::class, 'getLegacyUsers']);
+$app->delete('/api/v1/users/legacy/{id}', [UserController::class, 'deleteLegacyUser']);
 
 $app->run();
