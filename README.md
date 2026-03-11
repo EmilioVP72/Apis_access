@@ -21,7 +21,7 @@ Obtiene una lista de todos los usuarios cuya fecha de creación exceda los 6 añ
 
 *   **Ejemplo de Petición cURL:**
     ```bash
-    curl http://localhost:8080/api/v1/users/legacy
+    curl http://localhost:8090/api/v1/users/legacy
     ```
 
 *   **Ejemplo de Respuesta Exitosa:**
