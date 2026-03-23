@@ -12,13 +12,14 @@ class Userinfo {
 
     public function getLegacyUsers() {
         $query = "
-            SELECT 
+            SELECT
+                userid as id, 
                 name, 
                 lastname, 
+                identitycard as noCtrl,
                 Card as card, 
                 card_number_type, 
-                Gender, 
-                badgenumber as identifycard, 
+                Gender,  
                 create_time 
             FROM userinfo 
             WHERE create_time <= DATE_SUB(CURDATE(), INTERVAL 6 YEAR)

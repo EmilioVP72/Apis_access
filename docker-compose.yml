@@ -11,7 +11,7 @@ services:
     volumes:
       - .:/var/www/html
     environment:
-      - DB_HOST=mysql_server
+      - DB_HOST=mysql_central
       - DB_NAME=access
       - DB_USER=admin
       - DB_PASS=123
@@ -21,4 +21,4 @@ services:
 networks:
   app-network:
     external: true 
-    name: mysql_default
+    name: red_proyectos
