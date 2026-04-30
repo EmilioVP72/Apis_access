@@ -43,5 +43,26 @@ class Userinfo {
 
         return $stmt->rowCount();
     }
+    public function getUserById($id) {
+        $query = "
+            SELECT
+                userid as id, 
+                name, 
+                lastname, 
+                identitycard as noCtrl,
+                Card as card, 
+                card_number_type, 
+                Gender,  
+                create_time 
+            FROM userinfo 
+            WHERE userid = :id
+        ";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }
 

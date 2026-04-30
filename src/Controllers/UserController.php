@@ -69,4 +69,34 @@ class UserController {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
         }
     }
+    public function getUserById(Request $request, Response $response, array $args) {
+        $database = new Database();
+        $db = $database->getConnection();
+        
+        if (!$db) {
+            $response->getBody()->write(json_encode([
+                "status" => "error",
+                "message" => "Database connection failed."
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        }
+
+        $userId = $args['id'];
+        $userinfo = new Userinfo($db);
+        $user = $userinfo->getUserById($userId);
+
+        if ($user) {
+            $response->getBody()->write(json_encode([
+                "status" => "success",
+                "data" => $user
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } else {
+            $response->getBody()->write(json_encode([
+                "status" => "error",
+                "message" => "Usuario con ID $userId no encontrado."
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+        }
+    }
 }

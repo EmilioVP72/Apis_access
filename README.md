@@ -75,3 +75,45 @@ Elimina de forma física e irreversible un registro específico de un usuario, s
         "message": "No se pudo eliminar el usuario. Puede que el ID no exista o el usuario no cumple con el requisito de ser mayor a 6 años."
     }
     ```
+
+---
+
+### 3. Obtener Usuario por ID
+
+Obtiene la información detallada de un usuario específico a través de su ID interno (`userid`). A diferencia de los endpoints de tipo *legacy*, este endpoint consulta el registro sin importar su fecha de creación.
+
+*   **Ruta:** `GET /api/v1/users/{id}`
+*   **Parámetros de Ruta:**
+    *   `id` (int): El ID interno (`userid`) del empleado en la base de datos.
+*   **Descripción de Respuesta:**
+    Retorna un JSON con el estatus de la operación y un objeto con la información detallada del usuario solicitado (`id`, `name`, `lastname`, `noCtrl`, `card`, `card_number_type`, `Gender`, `create_time`). Si no se encuentra el usuario, retorna un error `404`.
+
+*   **Ejemplo de Petición cURL:**
+    ```bash
+    curl http://localhost:8090/api/v1/users/123
+    ```
+
+*   **Ejemplo de Respuesta Exitosa (200 OK):**
+    ```json
+    {
+        "status": "success",
+        "data": {
+            "id": "123",
+            "name": "Maria",
+            "lastname": "Gomez",
+            "noCtrl": "EMP002",
+            "card": "1234567",
+            "card_number_type": 1,
+            "Gender": "F",
+            "create_time": "2020-01-10 14:20:00"
+        }
+    }
+    ```
+
+*   **Ejemplo de Respuesta de Error (404 Not Found):**
+    ```json
+    {
+        "status": "error",
+        "message": "Usuario con ID 123 no encontrado."
+    }
+    ```
