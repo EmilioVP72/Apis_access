@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: slim_api_84
+    ports:
+      - "8090:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      - DB_HOST=mysql_central
+      - DB_NAME=access
+      - DB_USER=admin
+      - DB_PASS=123
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true 
+    name: red_proyectos
