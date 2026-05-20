@@ -12,5 +12,6 @@ $app->addBodyParsingMiddleware();
 $app->get('/api/v1/users/legacy', [UserController::class, 'getLegacyUsers']);
 $app->get('/api/v1/users/{id}', [UserController::class, 'getUserById']);
 $app->delete('/api/v1/users/legacy/{id}', [UserController::class, 'deleteLegacyUser']);
+$app->delete('/api/v1/users/bulk', [UserController::class, 'deleteBulkUsers']);
 
 $app->run();

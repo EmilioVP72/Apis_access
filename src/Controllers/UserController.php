@@ -99,4 +99,36 @@ class UserController {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
         }
     }
+    public function deleteBulkUsers(Request $request, Response $response) {
+        $database = new Database();
+        $db = $database->getConnection();
+        
+        if (!$db) {
+            $response->getBody()->write(json_encode([
+                "status" => "error",
+                "message" => "Database connection failed."
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        }
+
+        $data = $request->getParsedBody();
+        $identifiers = $data['identifiers'] ?? [];
+
+        if (!is_array($identifiers) || empty($identifiers)) {
+            $response->getBody()->write(json_encode([
+                "status" => "error",
+                "message" => "Please provide an array of identifiers in the 'identifiers' field."
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        $userinfo = new Userinfo($db);
+        $affectedRows = $userinfo->deleteUsersBulk($identifiers);
+
+        $response->getBody()->write(json_encode([
+            "status" => "success",
+            "message" => "$affectedRows usuarios eliminados correctamente."
+        ]));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+    }
 }
