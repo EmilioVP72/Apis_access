@@ -51,7 +51,7 @@ Elimina de forma física e irreversible un registro específico de un usuario, s
 
 *   **Ruta:** `DELETE /api/v1/users/legacy/{id}`
 *   **Parámetros de Ruta:**
-    *   `id` (int): El ID interno (`userid`) del empleado en la base de datos.
+    *   `id` (string): El número de tarjeta (`Card`) o en su defecto el ID interno (`userid`) del empleado en la base de datos.
 *   **Descripción de Respuesta:**
     Retorna una confirmación del borrado del usuario si se cumplen las condiciones, o un mensaje de error explicativo en caso contrario.
 
@@ -84,7 +84,7 @@ Obtiene la información detallada de un usuario específico a través de su ID i
 
 *   **Ruta:** `GET /api/v1/users/{id}`
 *   **Parámetros de Ruta:**
-    *   `id` (int): El ID interno (`userid`) del empleado en la base de datos.
+    *   `id` (string): El número de tarjeta (`Card`) o en su defecto el ID interno (`userid`) del empleado en la base de datos.
 *   **Descripción de Respuesta:**
     Retorna un JSON con el estatus de la operación y un objeto con la información detallada del usuario solicitado (`id`, `name`, `lastname`, `noCtrl`, `card`, `card_number_type`, `Gender`, `create_time`). Si no se encuentra el usuario, retorna un error `404`.
 
@@ -115,5 +115,40 @@ Obtiene la información detallada de un usuario específico a través de su ID i
     {
         "status": "error",
         "message": "Usuario con ID 123 no encontrado."
+    }
+    ```
+
+---
+
+### 4. Eliminar Usuarios Masivamente
+
+Elimina de forma física e irreversible múltiples registros de usuarios en una sola petición. A diferencia del borrado legacy, este endpoint **no aplica** la regla de los 6 años de antigüedad y eliminará los registros de inmediato. Puedes proveer una mezcla de diferentes identificadores (`Card`, `identitycard`, `userid`).
+
+*   **Ruta:** `DELETE /api/v1/users/bulk`
+*   **Cuerpo de la Petición (JSON):**
+    *   `identifiers` (array): Una lista de identificadores (strings o ints) a eliminar.
+*   **Descripción de Respuesta:**
+    Retorna un JSON con el estatus de la operación y el número total de registros que fueron eliminados exitosamente.
+
+*   **Ejemplo de Petición cURL:**
+    ```bash
+    curl -X DELETE http://localhost:8090/api/v1/users/bulk \
+    -H "Content-Type: application/json" \
+    -d '{"identifiers": ["CARD123", "EMP001", "789"]}'
+    ```
+
+*   **Ejemplo de Respuesta Exitosa (200 OK):**
+    ```json
+    {
+        "status": "success",
+        "message": "3 usuarios eliminados correctamente."
+    }
+    ```
+
+*   **Ejemplo de Respuesta de Error (400 Bad Request):**
+    ```json
+    {
+        "status": "error",
+        "message": "Please provide an array of identifiers in the 'identifiers' field."
     }
     ```
