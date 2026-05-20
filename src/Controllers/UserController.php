@@ -53,20 +53,31 @@ class UserController {
         $userId = $args['id'];
         $userinfo = new Userinfo($db);
         
-        $affectedRows = $userinfo->deleteLegacyUser($userId);
+        try {
+            $db->beginTransaction();
+            $affectedRows = $userinfo->deleteLegacyUser($userId);
+            $db->commit();
 
-        if ($affectedRows > 0) {
-            $response->getBody()->write(json_encode([
-                "status" => "success",
-                "message" => "Usuario con ID $userId eliminado correctamente."
-            ]));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
-        } else {
+            if ($affectedRows > 0) {
+                $response->getBody()->write(json_encode([
+                    "status" => "success",
+                    "message" => "Usuario con ID $userId eliminado correctamente."
+                ]));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+            } else {
+                $response->getBody()->write(json_encode([
+                    "status" => "error",
+                    "message" => "No se pudo eliminar el usuario. Puede que el ID no exista o el usuario no cumple con el requisito de ser mayor a 6 años."
+                ]));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+            }
+        } catch (\Exception $e) {
+            $db->rollBack();
             $response->getBody()->write(json_encode([
                 "status" => "error",
-                "message" => "No se pudo eliminar el usuario. Puede que el ID no exista o el usuario no cumple con el requisito de ser mayor a 6 años."
+                "message" => "Error al procesar la eliminación: " . $e->getMessage()
             ]));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
     }
     public function getUserById(Request $request, Response $response, array $args) {
@@ -123,12 +134,24 @@ class UserController {
         }
 
         $userinfo = new Userinfo($db);
-        $affectedRows = $userinfo->deleteUsersBulk($identifiers);
+        
+        try {
+            $db->beginTransaction();
+            $affectedRows = $userinfo->deleteUsersBulk($identifiers);
+            $db->commit();
 
-        $response->getBody()->write(json_encode([
-            "status" => "success",
-            "message" => "$affectedRows usuarios eliminados correctamente."
-        ]));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+            $response->getBody()->write(json_encode([
+                "status" => "success",
+                "message" => "$affectedRows usuarios eliminados correctamente."
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } catch (\Exception $e) {
+            $db->rollBack();
+            $response->getBody()->write(json_encode([
+                "status" => "error",
+                "message" => "Error al procesar la eliminación masiva: " . $e->getMessage()
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        }
     }
 }
