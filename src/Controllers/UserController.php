@@ -154,4 +154,58 @@ class UserController {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
     }
+
+    public function updateUser(Request $request, Response $response, array $args) {
+        $database = new Database();
+        $db = $database->getConnection();
+        
+        if (!$db) {
+            $response->getBody()->write(json_encode([
+                "status" => "error",
+                "message" => "Database connection failed."
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        }
+
+        $userId = $args['id'];
+        $data = $request->getParsedBody() ?? [];
+
+        if (empty($data)) {
+            $response->getBody()->write(json_encode([
+                "status" => "error",
+                "message" => "No se enviaron datos para actualizar."
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        $userinfo = new Userinfo($db);
+        
+        try {
+            $db->beginTransaction();
+            $affectedRows = $userinfo->updateUser($userId, $data);
+            $db->commit();
+
+            if ($affectedRows > 0) {
+                $response->getBody()->write(json_encode([
+                    "status" => "success",
+                    "message" => "Usuario actualizado correctamente."
+                ]));
+            } else {
+                // PDO rowCount es 0 si los datos eran los mismos o el usuario no existe.
+                $response->getBody()->write(json_encode([
+                    "status" => "success",
+                    "message" => "No se realizaron cambios o el usuario no existe."
+                ]));
+            }
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+
+        } catch (\Exception $e) {
+            $db->rollBack();
+            $response->getBody()->write(json_encode([
+                "status" => "error",
+                "message" => "Error al actualizar el usuario: " . $e->getMessage()
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        }
+    }
 }
