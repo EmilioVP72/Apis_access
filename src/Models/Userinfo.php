@@ -55,7 +55,7 @@ class Userinfo {
                 Gender,  
                 create_time 
             FROM userinfo 
-            WHERE Card = :id OR identitycard = :id OR userid = :id
+            WHERE (Card = :id OR identitycard = :id OR userid = :id)
         ";
 
         $stmt = $this->conn->prepare($query);
@@ -74,9 +74,11 @@ class Userinfo {
 
         $query = "
             DELETE FROM userinfo 
-            WHERE Card IN ($inQuery) 
-               OR identitycard IN ($inQuery)
-               OR userid IN ($inQuery)
+            WHERE (
+                   Card IN ($inQuery) 
+                OR identitycard IN ($inQuery)
+                OR userid IN ($inQuery)
+            )
         ";
 
         $stmt = $this->conn->prepare($query);
@@ -92,8 +94,9 @@ class Userinfo {
             return 0;
         }
 
-        // Prevenir la modificación del ID principal
+        // Prevenir la modificación de campos sensibles
         unset($data['userid']);
+        unset($data['create_time']);
 
         // Validar si quedó vacío después de remover el ID
         if (empty($data)) {
@@ -111,7 +114,7 @@ class Userinfo {
         $query = "
             UPDATE userinfo 
             SET $setClause 
-            WHERE userid = :id OR identitycard = :id OR Card = :id
+            WHERE (userid = :id OR identitycard = :id OR Card = :id)
         ";
 
         $stmt = $this->conn->prepare($query);
