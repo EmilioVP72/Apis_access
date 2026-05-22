@@ -50,7 +50,15 @@ class UserController {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
 
-        $userId = $args['id'];
+        $userId = trim($args['id'] ?? '');
+        if (empty($userId)) {
+            $response->getBody()->write(json_encode([
+                "status" => "error",
+                "message" => "El ID proporcionado no es válido."
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
         $userinfo = new Userinfo($db);
         
         try {
@@ -92,7 +100,15 @@ class UserController {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
 
-        $userId = $args['id'];
+        $userId = trim($args['id'] ?? '');
+        if (empty($userId)) {
+            $response->getBody()->write(json_encode([
+                "status" => "error",
+                "message" => "El ID proporcionado no es válido."
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
         $userinfo = new Userinfo($db);
         $user = $userinfo->getUserById($userId);
 
@@ -133,6 +149,25 @@ class UserController {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
+        // Limpiar el arreglo de valores nulos/vacíos y evitar inyección de excesivos parámetros
+        $identifiers = array_filter(array_map('trim', $identifiers));
+
+        if (empty($identifiers)) {
+            $response->getBody()->write(json_encode([
+                "status" => "error",
+                "message" => "El arreglo de identificadores no contiene valores válidos."
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        if (count($identifiers) > 100) {
+            $response->getBody()->write(json_encode([
+                "status" => "error",
+                "message" => "Límite excedido. Puedes eliminar un máximo de 100 usuarios por petición."
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
         $userinfo = new Userinfo($db);
         
         try {
@@ -167,7 +202,15 @@ class UserController {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
 
-        $userId = $args['id'];
+        $userId = trim($args['id'] ?? '');
+        if (empty($userId)) {
+            $response->getBody()->write(json_encode([
+                "status" => "error",
+                "message" => "El ID proporcionado no es válido."
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
         $data = $request->getParsedBody() ?? [];
 
         if (empty($data)) {
